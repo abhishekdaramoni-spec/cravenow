@@ -46,7 +46,7 @@ export const ExploreFeed: React.FC<ExploreFeedProps> = ({
     return true;
   });
 
-  const cartTotal = cart.reduce((acc, item) => acc + item.totalPrice, 0);
+  const cartTotal = cart.reduce((acc, item) => acc + (item.totalPrice || item.price || 0), 0);
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (

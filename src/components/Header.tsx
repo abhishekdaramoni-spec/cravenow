@@ -1,88 +1,85 @@
 import React from 'react';
-import { ScreenType } from '../types';
-import { APP_IMAGES } from '../data/mockData';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
 
-interface HeaderProps {
-  currentScreen: ScreenType;
-  onNavigate: (screen: ScreenType) => void;
-  activeOrderCount?: number;
-}
+export function Header() {
+  const location = useLocation();
+  const { user } = useAuth();
+  const { itemCount } = useCart();
 
-export const Header: React.FC<HeaderProps> = ({ currentScreen, onNavigate, activeOrderCount = 1 }) => {
-  // If we're on Courier Chat screen, the chat screen has its own top header
-  if (currentScreen === 'chat') {
-    return null;
-  }
+  // Don't show header on tracking page (it has its own)
+  if (location.pathname.startsWith('/tracking')) return null;
 
   return (
-    <header className="sticky top-0 inset-x-0 z-40 bg-[#141312]/85 backdrop-blur-xl pt-safe border-b border-[#2b2a28]/40">
-      <div className="h-16 px-3 sm:px-4 flex items-center justify-between gap-2 max-w-md mx-auto w-full">
-        {/* Logo & Brand Name */}
-        <button 
-          onClick={() => onNavigate('feed')}
-          className="flex items-center gap-2 text-left active:scale-95 transition-transform"
-        >
-          <img
-            alt="CraveNow Logo"
-            className="h-8 w-8 rounded-lg object-contain bg-[#1c1b1a] p-0.5 border border-white/10"
-            src={APP_IMAGES.logo}
-          />
+    <header className="sticky top-0 inset-x-0 z-40 bg-[#141312]/85 backdrop-blur-xl border-b border-[#2b2a28]/40">
+      <div className="h-16 px-4 flex items-center justify-between gap-2 max-w-5xl mx-auto w-full">
+        {/* Logo & Brand */}
+        <Link to="/" className="flex items-center gap-2.5 active:scale-95 transition-transform">
+          <div className="h-9 w-9 rounded-xl bg-[#f36334] flex items-center justify-center shadow-lg shadow-[#f36334]/20">
+            <span className="text-white font-black text-lg font-sans">C</span>
+          </div>
           <div className="flex flex-col">
-            <span className="font-headline-sm font-bold text-white tracking-tight leading-tight">
+            <span className="font-bold text-white tracking-tight leading-tight text-[15px]">
               CraveNow
             </span>
-            {currentScreen === 'receipt' && (
-              <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">
-                Order Fulfilled
-              </span>
-            )}
+            <span className="text-[10px] text-[#a88a81] font-medium hidden sm:block">
+              Food you&apos;ll love, delivered fast
+            </span>
           </div>
-        </button>
+        </Link>
 
-        {/* Deliver To Location Selector */}
-        <button 
-          onClick={() => onNavigate('feed')}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#2b2a28]/60 hover:bg-[#2b2a28] max-w-[170px] min-h-[40px] touch-manipulation border border-white/5 transition-colors"
-        >
+        {/* Deliver To */}
+        <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1c1b1a] hover:bg-[#2b2a28] max-w-[200px] min-h-[40px] border border-white/5 transition-colors">
           <span className="material-symbols-outlined text-[#f36334] text-[18px]">location_on</span>
           <div className="flex flex-col text-left truncate">
-            <span className="text-[10px] text-[#e1bfb5] uppercase leading-none font-bold tracking-wider">
+            <span className="text-[10px] text-[#a88a81] uppercase leading-none font-bold tracking-wider">
               Deliver To
             </span>
             <span className="text-xs font-semibold text-white truncate">
-              San Francisco, CA
+              Koramangala, Bangalore
             </span>
           </div>
-          <span className="material-symbols-outlined text-[#e1bfb5] text-[16px]">keyboard_arrow_down</span>
+          <span className="material-symbols-outlined text-[#a88a81] text-[16px]">keyboard_arrow_down</span>
         </button>
 
-        {/* Profile Avatar & Active Order Chip */}
+        {/* Right Actions */}
         <div className="flex items-center gap-2">
-          {activeOrderCount > 0 && currentScreen !== 'tracker' && currentScreen !== 'receipt' && (
-            <button
-              onClick={() => onNavigate('tracker')}
-              className="relative p-1.5 rounded-full bg-[#f36334]/20 text-[#f36334] hover:bg-[#f36334]/30 active:scale-90 transition-all border border-[#f36334]/30"
-              title="View live delivery"
+          {/* AI Assistant */}
+          <Link
+            to="/ai"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#f36334]/20 to-[#ffba49]/10 text-[#ffba49] text-xs font-bold border border-[#ffba49]/20 hover:border-[#ffba49]/40 transition-colors"
+          >
+            <span className="material-symbols-outlined text-[16px]">auto_awesome</span>
+            <span>AI</span>
+          </Link>
+
+          {/* Cart indicator */}
+          {itemCount > 0 && (
+            <Link
+              to="/cart"
+              className="relative p-2 rounded-full bg-[#f36334]/15 text-[#f36334] hover:bg-[#f36334]/25 active:scale-90 transition-all border border-[#f36334]/30"
             >
-              <span className="material-symbols-outlined text-[20px]">moped</span>
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            </button>
+              <span className="material-symbols-outlined text-[20px]">shopping_bag</span>
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#f36334] text-white text-[10px] font-bold flex items-center justify-center">
+                {itemCount}
+              </span>
+            </Link>
           )}
 
-          <button
-            onClick={() => onNavigate('profile')}
-            className="w-9 h-9 rounded-full flex items-center justify-center ring-2 ring-[#f36334]/40 hover:ring-[#f36334] active:scale-95 transition-all overflow-hidden"
-            title="Profile & Settings"
+          {/* Profile */}
+          <Link
+            to={user ? '/profile' : '/login'}
+            className="w-9 h-9 rounded-full flex items-center justify-center ring-2 ring-[#f36334]/30 hover:ring-[#f36334] active:scale-95 transition-all overflow-hidden bg-[#1c1b1a]"
           >
-            <img
-              alt="Alex Miller"
-              className="w-full h-full rounded-full object-cover"
-              src={APP_IMAGES.userProfile}
-            />
-          </button>
+            {user?.avatar_url ? (
+              <img alt={user.full_name} className="w-full h-full rounded-full object-cover" src={user.avatar_url} />
+            ) : (
+              <span className="material-symbols-outlined text-[20px] text-[#a88a81]">person</span>
+            )}
+          </Link>
         </div>
       </div>
     </header>
   );
-};
+}

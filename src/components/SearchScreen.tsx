@@ -27,7 +27,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
     if (selectedTag === 'Burgers') return d.category === 'Burgers';
     if (selectedTag === 'Artisan Pizza') return d.category === 'Artisan Pizza';
     if (selectedTag === 'Ramen') return d.category === 'Ramen & Broth';
-    if (selectedTag === 'Free Delivery') return d.deliveryFee.includes('Free');
+    if (selectedTag === 'Free Delivery') return (d.deliveryFee || '').includes('Free');
     if (selectedTag === 'Under $15') return d.price < 15;
     return true;
   });
