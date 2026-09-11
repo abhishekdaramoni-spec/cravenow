@@ -1,0 +1,6 @@
+{
+  "name": "CraveNow",
+  "description": "Artisan food delivery platform featuring real-time GPS tracking, courier messaging, interactive order customizer, tip & rating workflows, and verified receipts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
