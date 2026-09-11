@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { FavoritesProvider } from '@/contexts/FavoritesContext';
 import { CartProvider } from '@/contexts/CartContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { MainLayout } from '@/layouts/MainLayout';
@@ -39,8 +40,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <CartProvider>
-          <ToastProvider>
+        <FavoritesProvider>
+          <CartProvider>
+            <ToastProvider>
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 {/* Auth routes (no layout) */}
@@ -73,7 +75,8 @@ export default function App() {
             </Suspense>
           </ToastProvider>
         </CartProvider>
-      </AuthProvider>
+      </FavoritesProvider>
+    </AuthProvider>
     </BrowserRouter>
   );
 }
