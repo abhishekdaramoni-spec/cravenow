@@ -1,7 +1,7 @@
 // ============================================
 // CraveNow — Storage & Multi-User Isolation Service
 // ============================================
-import type { UserProfile, Order, Address, Restaurant, Dish } from '@/types';
+import type { UserProfile, Order, Address, Restaurant, Dish, DeliveryLocation } from '@/types';
 
 // Default Demo Users for all roles
 export const DEFAULT_USERS: (UserProfile & { password?: string })[] = [
@@ -490,5 +490,57 @@ export const StorageService = {
   isDishFavorite(userId: string, dishId: string): boolean {
     const favs = this.getUserFavorites(userId);
     return favs.dishIds.includes(dishId);
+  },
+
+  // --- ACTIVE DELIVERY LOCATION ---
+  getActiveLocation(userId?: string): DeliveryLocation {
+    const uid = userId || this.getActiveUser()?.id || 'guest';
+    const key = `cravenow_active_loc_${uid}`;
+    const raw = localStorage.getItem(key);
+    if (raw) {
+      try {
+        return JSON.parse(raw);
+      } catch {
+        // ignore parse error
+      }
+    }
+
+    // Fall back to default saved address if present
+    const addresses = this.getUserAddresses(uid);
+    const defaultAddr = addresses.find(a => a.is_default) || addresses[0];
+    if (defaultAddr) {
+      return {
+        id: defaultAddr.id,
+        address: defaultAddr.full_address,
+        locality: defaultAddr.label || 'Koramangala',
+        city: 'Bangalore',
+        lat: defaultAddr.lat,
+        lng: defaultAddr.lng,
+        source: 'saved',
+        label: defaultAddr.label,
+      };
+    }
+
+    return {
+      id: 'loc-default',
+      address: 'Prestige Lakeside, Koramangala, Bangalore - 560034',
+      locality: 'Koramangala',
+      city: 'Bangalore',
+      state: 'Karnataka',
+      postal_code: '560034',
+      lat: 12.9352,
+      lng: 77.6245,
+      source: 'default',
+      label: 'Home',
+    };
+  },
+
+  setActiveLocation(location: DeliveryLocation, userId?: string): void {
+    const uid = userId || this.getActiveUser()?.id || 'guest';
+    const key = `cravenow_active_loc_${uid}`;
+    localStorage.setItem(key, JSON.stringify(location));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cravenow_location_changed', { detail: location }));
+    }
   },
 };

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
+import { useLocationContext } from '@/contexts/LocationContext';
 import { formatPrice } from '@/lib/constants';
 import { StorageService } from '@/services/storageService';
 import type { Order, Address } from '@/types';
@@ -12,13 +13,17 @@ export default function CheckoutPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { currentLocation, openLocationModal, setLocation } = useLocationContext();
   
   const userId = user?.id || 'guest';
   const userAddresses = StorageService.getUserAddresses(userId);
 
-  const [selectedAddressId, setSelectedAddressId] = useState<string>(
-    userAddresses.find(a => a.is_default)?.id || userAddresses[0]?.id || 'addr-default'
-  );
+  const [selectedAddressId, setSelectedAddressId] = useState<string>(() => {
+    if (currentLocation?.id && userAddresses.some(a => a.id === currentLocation.id)) {
+      return currentLocation.id;
+    }
+    return userAddresses.find(a => a.is_default)?.id || userAddresses[0]?.id || 'addr-default';
+  });
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [newLabel, setNewLabel] = useState('Home');
   const [newAddressText, setNewAddressText] = useState('');
@@ -59,6 +64,16 @@ export default function CheckoutPage() {
     };
     StorageService.saveAddress(userId, created);
     setSelectedAddressId(created.id);
+    setLocation({
+      id: created.id,
+      address: created.full_address,
+      locality: created.label,
+      city: 'Bangalore',
+      lat: created.lat,
+      lng: created.lng,
+      source: 'saved',
+      label: created.label,
+    });
     setIsAddingAddress(false);
     setNewAddressText('');
     showToast('New delivery address saved!', 'success');
@@ -190,12 +205,44 @@ export default function CheckoutPage() {
             </form>
           )}
 
+          {/* Active location indicator & modal opener */}
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[#141312] border border-[#2b2a28]">
+            <div className="flex items-center gap-2.5 truncate min-w-0">
+              <span className="material-symbols-outlined text-[#f36334] text-[18px] shrink-0">my_location</span>
+              <div className="truncate">
+                <span className="text-[10px] uppercase font-bold text-[#a88a81] block">Active Delivery Locality</span>
+                <span className="text-xs text-white font-semibold truncate block">
+                  {currentLocation?.locality || currentLocation?.city}: {currentLocation?.address}
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={openLocationModal}
+              className="text-xs text-[#f36334] hover:text-[#ff7547] font-bold shrink-0 ml-3 underline underline-offset-2"
+            >
+              Change Area
+            </button>
+          </div>
+
           {/* Address Cards */}
           <div className="space-y-2">
             {userAddresses.map(addr => (
               <div
                 key={addr.id}
-                onClick={() => setSelectedAddressId(addr.id)}
+                onClick={() => {
+                  setSelectedAddressId(addr.id);
+                  setLocation({
+                    id: addr.id,
+                    address: addr.full_address,
+                    locality: addr.label,
+                    city: 'Bangalore',
+                    lat: addr.lat,
+                    lng: addr.lng,
+                    source: 'saved',
+                    label: addr.label,
+                  });
+                }}
                 className={`p-3 rounded-xl border cursor-pointer flex items-start justify-between transition-all ${
                   selectedAddressId === addr.id
                     ? 'bg-[#f36334]/10 border-[#f36334]'

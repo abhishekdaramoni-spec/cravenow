@@ -4,6 +4,7 @@ import { RESTAURANTS, FOOD_CATEGORIES, FILTER_CHIPS } from '@/data/restaurants';
 import { formatPrice } from '@/lib/constants';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { useToast } from '@/contexts/ToastContext';
+import { useLocationContext } from '@/contexts/LocationContext';
 import type { Restaurant } from '@/types';
 
 function RestaurantCard({
@@ -118,6 +119,7 @@ export default function HomePage() {
 
   const { isRestaurantFavorite, toggleFavoriteRestaurant } = useFavorites();
   const { showToast } = useToast();
+  const { currentLocation, openLocationModal } = useLocationContext();
 
   const handleToggleFav = (id: string) => {
     const isNow = toggleFavoriteRestaurant(id);
@@ -185,7 +187,29 @@ export default function HomePage() {
   return (
     <div className="flex flex-col w-full pb-32 max-w-6xl mx-auto">
       {/* Search Header Bar */}
-      <section className="px-4 py-3 flex flex-col gap-3 bg-[#141312]">
+      <section className="px-4 py-3 flex flex-col gap-2.5 bg-[#141312]">
+        {/* Mobile Quick Location Bar */}
+        <div className="flex sm:hidden items-center justify-between">
+          <button
+            onClick={openLocationModal}
+            className="flex items-center gap-1.5 text-left py-0.5 active:scale-95 transition-transform group"
+          >
+            <span className="material-symbols-outlined text-[#f36334] text-[18px]">location_on</span>
+            <div className="flex items-center gap-1">
+              <span className="text-[11px] text-[#a88a81] uppercase font-bold tracking-wider">Deliver to</span>
+              <span className="text-xs font-bold text-white group-hover:text-[#f36334] underline underline-offset-2 decoration-[#f36334]/60 truncate max-w-[170px]">
+                {currentLocation?.locality || currentLocation?.city || 'Select Location'}
+              </span>
+            </div>
+            <span className="material-symbols-outlined text-[#f36334] text-[14px]">arrow_drop_down</span>
+          </button>
+          {currentLocation?.source === 'gps' && (
+            <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
+              GPS Active
+            </span>
+          )}
+        </div>
+
         <div className="relative flex items-center">
           <div className="absolute left-4 pointer-events-none text-[#a88a81]">
             <span className="material-symbols-outlined text-[22px]">search</span>

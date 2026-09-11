@@ -4,6 +4,8 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { FavoritesProvider } from '@/contexts/FavoritesContext';
 import { CartProvider } from '@/contexts/CartContext';
 import { ToastProvider } from '@/contexts/ToastContext';
+import { LocationProvider } from '@/contexts/LocationContext';
+import { LocationModal } from '@/components/LocationModal';
 import { MainLayout } from '@/layouts/MainLayout';
 
 // Lazy-loaded pages
@@ -43,40 +45,43 @@ export default function App() {
         <FavoritesProvider>
           <CartProvider>
             <ToastProvider>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                {/* Auth routes (no layout) */}
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/signup" element={<SignUpPage />} />
+              <LocationProvider>
+                <LocationModal />
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
+                    {/* Auth routes (no layout) */}
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/signup" element={<SignUpPage />} />
 
-                {/* Main app routes with layout */}
-                <Route element={<MainLayout />}>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/search" element={<SearchPage />} />
-                  <Route path="/restaurant/:slug" element={<RestaurantPage />} />
-                  <Route path="/cart" element={<CartPage />} />
-                  <Route path="/checkout" element={<CheckoutPage />} />
-                  <Route path="/orders" element={<OrdersPage />} />
-                  <Route path="/tracking/:orderId" element={<TrackingPage />} />
-                  <Route path="/favorites" element={<FavoritesPage />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/booking/:restaurantSlug" element={<BookingPage />} />
-                  <Route path="/ai" element={<AIAssistantPage />} />
-                  
-                  {/* Partner & Admin Dashboards */}
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/partner/restaurant" element={<RestaurantDashboard />} />
-                  <Route path="/partner/delivery" element={<DeliveryDashboard />} />
-                </Route>
+                    {/* Main app routes with layout */}
+                    <Route element={<MainLayout />}>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/search" element={<SearchPage />} />
+                      <Route path="/restaurant/:slug" element={<RestaurantPage />} />
+                      <Route path="/cart" element={<CartPage />} />
+                      <Route path="/checkout" element={<CheckoutPage />} />
+                      <Route path="/orders" element={<OrdersPage />} />
+                      <Route path="/tracking/:orderId" element={<TrackingPage />} />
+                      <Route path="/favorites" element={<FavoritesPage />} />
+                      <Route path="/profile" element={<ProfilePage />} />
+                      <Route path="/booking/:restaurantSlug" element={<BookingPage />} />
+                      <Route path="/ai" element={<AIAssistantPage />} />
+                      
+                      {/* Partner & Admin Dashboards */}
+                      <Route path="/admin" element={<AdminDashboard />} />
+                      <Route path="/partner/restaurant" element={<RestaurantDashboard />} />
+                      <Route path="/partner/delivery" element={<DeliveryDashboard />} />
+                    </Route>
 
-                {/* Catch-all */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Suspense>
-          </ToastProvider>
-        </CartProvider>
-      </FavoritesProvider>
-    </AuthProvider>
+                    {/* Catch-all */}
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </Suspense>
+              </LocationProvider>
+            </ToastProvider>
+          </CartProvider>
+        </FavoritesProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

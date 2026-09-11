@@ -2,45 +2,63 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
+import { useLocationContext } from '@/contexts/LocationContext';
 
 export function Header() {
   const location = useLocation();
   const { user } = useAuth();
   const { itemCount } = useCart();
+  const { currentLocation, openLocationModal } = useLocationContext();
 
   // Don't show header on tracking page (it has its own)
   if (location.pathname.startsWith('/tracking')) return null;
 
+  const displayLocality = currentLocation?.locality || currentLocation?.city || 'Select Location';
+  const displayAddress = currentLocation?.address || 'Set your delivery location';
+
   return (
     <header className="sticky top-0 inset-x-0 z-40 bg-[#141312]/85 backdrop-blur-xl border-b border-[#2b2a28]/40">
-      <div className="h-16 px-4 flex items-center justify-between gap-2 max-w-5xl mx-auto w-full">
+      <div className="h-16 px-3 sm:px-4 flex items-center justify-between gap-2 max-w-5xl mx-auto w-full">
         {/* Logo & Brand */}
-        <Link to="/" className="flex items-center gap-2.5 active:scale-95 transition-transform">
-          <div className="h-9 w-9 rounded-xl bg-[#f36334] flex items-center justify-center shadow-lg shadow-[#f36334]/20">
+        <Link to="/" className="flex items-center gap-2 sm:gap-2.5 active:scale-95 transition-transform shrink-0">
+          <div className="h-9 w-9 rounded-xl bg-[#f36334] flex items-center justify-center shadow-lg shadow-[#f36334]/20 shrink-0">
             <span className="text-white font-black text-lg font-sans">C</span>
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-white tracking-tight leading-tight text-[15px]">
+            <span className="font-bold text-white tracking-tight leading-tight text-[14px] sm:text-[15px]">
               CraveNow
             </span>
-            <span className="text-[10px] text-[#a88a81] font-medium hidden sm:block">
+            <span className="text-[10px] text-[#a88a81] font-medium hidden md:block">
               Food you&apos;ll love, delivered fast
             </span>
           </div>
         </Link>
 
-        {/* Deliver To */}
-        <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1c1b1a] hover:bg-[#2b2a28] max-w-[200px] min-h-[40px] border border-white/5 transition-colors">
-          <span className="material-symbols-outlined text-[#f36334] text-[18px]">location_on</span>
-          <div className="flex flex-col text-left truncate">
-            <span className="text-[10px] text-[#a88a81] uppercase leading-none font-bold tracking-wider">
+        {/* Deliver To Selector Button */}
+        <button
+          onClick={openLocationModal}
+          type="button"
+          title={`Delivery Location: ${displayAddress}`}
+          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-[#1c1b1a] hover:bg-[#262422] active:scale-95 max-w-[145px] sm:max-w-[220px] md:max-w-[260px] min-h-[36px] sm:min-h-[40px] border border-white/5 hover:border-[#f36334]/40 transition-all cursor-pointer group"
+          aria-label={`Current delivery location: ${displayLocality}. Click to change.`}
+        >
+          <span className="material-symbols-outlined text-[#f36334] text-[18px] sm:text-[20px] shrink-0 group-hover:scale-110 transition-transform">
+            location_on
+          </span>
+          <div className="flex flex-col text-left truncate min-w-0">
+            <span className="text-[9px] sm:text-[10px] text-[#a88a81] uppercase leading-none font-bold tracking-wider truncate flex items-center gap-1">
               Deliver To
+              {currentLocation?.source === 'gps' && (
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400" title="GPS Detected" />
+              )}
             </span>
-            <span className="text-xs font-semibold text-white truncate">
-              Koramangala, Bangalore
+            <span className="text-xs font-semibold text-white truncate group-hover:text-[#f36334] transition-colors">
+              {displayLocality}
             </span>
           </div>
-          <span className="material-symbols-outlined text-[#a88a81] text-[16px]">keyboard_arrow_down</span>
+          <span className="material-symbols-outlined text-[#a88a81] group-hover:text-white text-[16px] shrink-0 transition-transform group-hover:translate-y-0.5">
+            keyboard_arrow_down
+          </span>
         </button>
 
         {/* Right Actions */}

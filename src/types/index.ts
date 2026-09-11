@@ -135,6 +135,20 @@ export interface Address {
   created_at: string;
 }
 
+// --- Delivery Location ---
+export interface DeliveryLocation {
+  id?: string;
+  address: string;
+  locality: string;
+  city: string;
+  state?: string;
+  postal_code?: string;
+  lat?: number;
+  lng?: number;
+  source?: 'gps' | 'saved' | 'popular' | 'manual' | 'default';
+  label?: string;
+}
+
 // --- Order ---
 export type OrderStatus =
   | 'pending'
